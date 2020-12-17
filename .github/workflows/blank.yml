@@ -22,14 +22,24 @@ jobs:
 
     # Steps represent a sequence of tasks that will be executed as part of the job
     steps:
-      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
       - uses: actions/checkout@v2
         with:
           repository: CERT-Polska/drakvuf-sandbox
           ref: ops-ipt
+          path: sandbox
+          submodules: false
+      - name: Get DRAKVUF commit ref
+        id: get_drakvuf_ref
+        run: |
+          DRAKVUF_REF=$(sh -c 'cd sandbox && git ls-tree HEAD drakvuf' | cut -f3 '-d ' | cut -f1 -d$'\t')
+          echo "::set-output name=drakvuf_ref::${DRAKVUF_REF}"
+      - name: Checkout DRAKVUF
+        uses: actions/checkout@v2
+        with:
+          repository: tklengyel/drakvuf
+          path: drakvuf
+          ref: ${{ steps.get_drakvuf_ref.outputs.drakvuf_ref }}
           submodules: recursive
-
-      # Runs a single command using the runners shell
       - name: Build DRAKVUF package
         id: build_drakvuf_deb
         run: |
