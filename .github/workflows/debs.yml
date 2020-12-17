@@ -9,6 +9,10 @@ jobs:
   release:
     runs-on: ubuntu-18.04
     steps:
+    - name: Generate release id
+      id: gen_release_id
+      run: |
+        echo "::set-output name=short_hash::${GITHUB_SHA::8}"
     - name: Create a Release
       uses: actions/create-release@v1
       id: create_release
@@ -16,7 +20,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: DRAKVUF Bundle IPT ${{ GITHUB_SHA::8 }}
+        release_name: DRAKVUF Bundle IPT ${{ steps.gen_release_id.outputs.short_hash }}
         draft: true
         prerelease: false
     - name: Store release URL as file
