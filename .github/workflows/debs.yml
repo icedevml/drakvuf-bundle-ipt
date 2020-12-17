@@ -38,7 +38,23 @@ jobs:
           - "ubuntu:bionic"
           - "ubuntu:focal"
     steps:
-      - uses: actions/checkout@v2
+      - name: Fetch release URL
+        uses: actions/download-artifact@v1
+        with:
+          name: release-url
+      - name: Generate variables
+        id: gen_vars
+        run: |
+          SYSTEM_ID=$(echo ${{ matrix.container }} | cut -f1 '-d:')
+          DISTRIBUTION=$(echo ${{ matrix.container }} | cut -f2 '-d:')
+          ARTIFACT_PREFIX="${SYSTEM_ID}_${DISTRIBUTION}"
+          echo "Artifact prefix: $ARTIFACT_PREFIX"
+          RELEASE_URL=$(cat release-url/release-url.txt)
+          echo "Release URL: $RELEASE_URL"
+          echo "::set-output name=artifact_prefix::${ARTIFACT_PREFIX}"
+          echo "::set-output name=release_url::${RELEASE_URL}"
+      - name: Checkout drakvuf-bundle-ipt repo
+        uses: actions/checkout@v2
         with:
           path: repo
           submodules: false
@@ -73,16 +89,6 @@ jobs:
           DRAKVUF_DEB_NAME=ipt_$(basename "$DRAKVUF_DEB_PATH")
           echo "::set-output name=drakvuf_deb_path::${DRAKVUF_DEB_PATH}"
           echo "::set-output name=drakvuf_deb_name::${{ steps.gen_vars.outputs.artifact_prefix }}_${DRAKVUF_DEB_NAME}"
-      - name: Create a Release
-        uses: actions/create-release@v1
-        id: create_release
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: DRAKVUF Sandbox ${{ github.ref }}
-          draft: true
-          prerelease: false
       - name: Upload DRAKVUF release asset
         uses: actions/upload-release-asset@v1.0.2
         env:
