@@ -27,7 +27,7 @@ jobs:
         with:
           repository: CERT-Polska/drakvuf-sandbox
           ref: ops-ipt
-          submodules: true
+          submodules: recursive
 
       # Runs a single command using the runners shell
       - name: Build DRAKVUF package
