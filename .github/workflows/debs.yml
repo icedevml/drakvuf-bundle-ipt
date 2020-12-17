@@ -16,7 +16,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.ref }}
-        release_name: DRAKVUF Sandbox ${{ github.ref }}
+        release_name: DRAKVUF Bundle IPT ${GITHUB_SHA::8}
         draft: true
         prerelease: false
     - name: Store release URL as file
