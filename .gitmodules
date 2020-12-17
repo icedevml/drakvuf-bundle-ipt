@@ -1,0 +1,3 @@
+[submodule "drakvuf-sandbox"]
+	path = drakvuf-sandbox
+	url = https://github.com/CERT-Polska/drakvuf-sandbox.git
