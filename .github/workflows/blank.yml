@@ -24,8 +24,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
+          path: repo
+          submodules: false
+      - name: Get DRAKVUF Sandbox commit ref
+        id: get_drakvuf_sandbox_ref
+        run: |
+          DRAKVUF_SANDBOX_REF=$(sh -c 'cd repo && git ls-tree HEAD drakvuf-sandbox' | cut -f3 '-d ' | cut -f1 -d$'\t')
+          echo "::set-output name=drakvuf_sandbox_ref::${DRAKVUF_SANDBOX_REF}"
+      - uses: actions/checkout@v2
+        with:
           repository: CERT-Polska/drakvuf-sandbox
-          ref: ops-ipt
+          ref: ${{ steps.get_drakvuf_sandbox_ref.outputs.drakvuf_ref }}
           path: sandbox
           submodules: false
       - name: Get DRAKVUF commit ref
