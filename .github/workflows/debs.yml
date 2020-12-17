@@ -6,8 +6,29 @@ on:
   pull_request:
     branches: [ main ]
 jobs:
+  release:
+    runs-on: ubuntu-18.04
+    steps:
+    - name: Create a Release
+      uses: actions/create-release@v1
+      id: create_release
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: DRAKVUF Sandbox ${{ github.ref }}
+        draft: true
+        prerelease: false
+    - name: Store release URL as file
+      run: |
+        echo "${{ steps.create_release.outputs.upload_url }}" > release-url.txt
+    - name: Upload release URL artifact
+      uses: actions/upload-artifact@v1
+      with:
+        name: release-url
+        path: release-url.txt
   build:
-    needs: []
+    needs: [release]
     runs-on: ubuntu-18.04
     strategy:
       fail-fast: false
@@ -67,7 +88,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          upload_url: ${{ steps.gen_vars.outputs.release_url }}
           asset_path: ${{ steps.build_drakvuf_deb.outputs.drakvuf_deb_path }}
           asset_name: ${{ steps.build_drakvuf_deb.outputs.drakvuf_deb_name }}
           asset_content_type: application/vnd.debian.binary-package
